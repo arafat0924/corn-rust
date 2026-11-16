@@ -1,0 +1,18 @@
+{
+  "id": "abuhanif95/corn-rust-training",
+  "title": "corn-rust-training",
+  "code_file": "train_corn_rust.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": true,
+  "enable_gpu": true,
+  "machine_shape": "NvidiaTeslaT4",
+  "enable_tpu": false,
+  "enable_internet": true,
+  "dataset_sources": ["abuhanif95/corn-rust-v3"],
+  "competition_sources": [],
+  "kernel_sources": [],
+  "model_sources": []
+}
+
+

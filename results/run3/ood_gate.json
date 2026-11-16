@@ -1,0 +1,19 @@
+{
+ "version": 2,
+ "backbone": "efficientnet_b0 (ImageNet, timm)",
+ "k": 5,
+ "groups": [
+  "corn",
+  "corn_other",
+  "other_crop",
+  "not_leaf"
+ ],
+ "accept_group": "corn",
+ "multiview": false,
+ "bank_sizes": {
+  "corn": 1500,
+  "corn_other": 1500,
+  "other_crop": 1500,
+  "not_leaf": 1240
+ }
+}

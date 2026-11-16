@@ -1,0 +1,81 @@
+
+=== bcd_nafishamoin: 31053 files, 0 unreadable, 6.97 GB
+  size (w x h): median 256x256, min 15x1, max 6000x4725; modes {'RGB': np.int64(31053)}
+split                      
+class                      
+Corn___Common_Rust     3814
+Corn___Gray_Leaf_Spot  3284
+Corn___Healthy         3718
+Corn___Leaf_Blight     3816
+Invalid                1563
+Potato___Early_Blight  3149
+Potato___Healthy       2006
+Potato___Late_Blight   3131
+Rice___Brown_Spot       563
+Rice___Healthy          523
+Rice___Hispa            523
+Rice___Leaf_Blast      1182
+Wheat___Brown_Rust     1128
+Wheat___Healthy        1497
+Wheat___Yellow_Rust    1156
+
+=== bcdd: 8992 files, 0 unreadable, 0.04 GB
+  size (w x h): median 96x96, min 96x96, max 96x96; modes {'RGB': np.int64(8992)}
+split                                               test  train  val
+class                                                               
+Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot    48    360   72
+Corn_(maize)___Common_rust_                           48    360   72
+Corn_(maize)___Northern_Leaf_Blight                   48    360   72
+Corn_(maize)___healthy                                48    360   72
+Potato___Early_blight                                 48    360   72
+Potato___Late_blight                                  48    360   72
+Potato___healthy                                      48    360   72
+Rice_bacterial_leaf_blight                            48    360   72
+Rice_brown_spot                                       44    330   66
+Rice_healthy                                          44    330   66
+Rice_leaf_blast                                       44    330   66
+Tomato___Bacterial_spot                               48    360   72
+Tomato___Early_blight                                 48    360   72
+Tomato___Late_blight                                  48    360   72
+Tomato___healthy                                      48    360   72
+Wheat Brown rust                                      48    360   72
+Wheat Healthy                                         48    360   72
+Wheat Loose Smut                                      48    354   70
+Wheat Yellow rust                                     48    360   72
+
+=== dhan_shomadhan: 1082 files, 0 unreadable, 2.18 GB
+  size (w x h): median 1952x4160, min 1952x1536, max 4160x4160; modes {'RGB': np.int64(1082)}
+split             
+class             
+Brown Spot      85
+Browon Spot     44
+Leaf Scaled    213
+Rice Blast     270
+Rice Tungro    118
+Rice Turgro     72
+Shath Blight   218
+Sheath Blight   62
+
+=== riceleafbd: 1560 files, 0 unreadable, 0.51 GB
+  size (w x h): median 1080x1552, min 167x245, max 2000x2048; modes {'RGB': np.int64(1560)}
+split                     
+class                     
+Bacterial Leaf Blight  422
+Brown Spot             356
+Healthy Leaf           252
+Tungro Virus           530
+
+=== veg_leaf_bd: 5640 files, 0 unreadable, 0.47 GB
+  size (w x h): median 700x700, min 700x700, max 700x700; modes {'RGB': np.int64(5640)}
+split                            
+class                            
+Black Rot                     560
+Downy mildew                  392
+Eggplant Cercopora leaf spot  723
+Eggplant begomovirus          715
+Eggplant fresh leaf           771
+Eggplant verticillium wilt    724
+Tomato Bacterial spot         588
+Tomato Fresh leaf             371
+Tomato leaf curl virus        142
+Tomato spotted wilt           654

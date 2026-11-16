@@ -1,0 +1,136 @@
+[{"stream_name":"stderr","time":7.497534659,"data":"/usr/local/lib/python3.13/dist-packages/nbformat/validator.py:434: MissingIDFieldWarning: Cell is missing an id field, this will become a hard error in future nbformat versions. You may want to use `normalize()` on your notebooks before validations (available since nbformat 5.1.4). Previous versions of nbformat are fixing this issue transparently, and will stop doing so in the future.\n"}
+,{"stream_name":"stderr","time":7.497576539,"data":"  _validate(nbdict, ref, version, version_minor, relax_add_props)\n"}
+,{"stream_name":"stderr","time":8.517708387999999,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":8.517737203,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":8.517742139,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":8.517746105,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":9.16182572,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":9.161857269,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":9.161863664,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":9.161867911,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stdout","time":30.853469106,"data":"device: cuda | torch 2.11.0+cu130 | timm 1.0.30 | smoke: False\n"}
+,{"stream_name":"stdout","time":33.245449848,"data":"raw data: /kaggle/input/datasets/abuhanif95/corn-rust | outputs: /kaggle/working\n"}
+,{"stream_name":"stdout","time":199.509789839,"data":"             images  kept  with_black_before  with_black_after  mean_crop_frac\n"}
+,{"stream_name":"stdout","time":199.509831733,"data":"cls                                                                           \n"}
+,{"stream_name":"stdout","time":199.509837035,"data":"Common_rust    1144  1126              0.997               0.0           0.553\n"}
+,{"stream_name":"stdout","time":199.509840918,"data":"Healthy        1110  1110              0.001               0.0           0.605\n"}
+,{"stream_name":"stdout","time":199.509844551,"data":"cls    Common_rust  Healthy\n"}
+,{"stream_name":"stdout","time":199.509847925,"data":"split                      \n"}
+,{"stream_name":"stdout","time":199.509851424,"data":"test           171      167\n"}
+,{"stream_name":"stdout","time":199.509854682,"data":"train          785      777\n"}
+,{"stream_name":"stdout","time":199.509858172,"data":"val            170      166\n"}
+,{"stream_name":"stdout","time":199.538817025,"data":"classes: ['Common_rust', 'Healthy']\n"}
+,{"stream_name":"stdout","time":199.538844785,"data":"{'train': 1562, 'val': 336, 'test': 338}\n"}
+,{"stream_name":"stdout","time":202.482089443,"data":"SmallCNN params: 0.39M\n"}
+,{"stream_name":"stdout","time":216.50640606,"data":"small_cnn ep01  train loss 0.3578 acc 0.8675 | val loss 0.2475 acc 0.8899 | 14s\n"}
+,{"stream_name":"stdout","time":224.874060502,"data":"small_cnn ep02  train loss 0.2965 acc 0.9123 | val loss 0.1634 acc 0.9345 | 8s\n"}
+,{"stream_name":"stdout","time":233.486928761,"data":"small_cnn ep03  train loss 0.2843 acc 0.9238 | val loss 0.1479 acc 0.9613 | 9s\n"}
+,{"stream_name":"stdout","time":241.906318366,"data":"small_cnn ep04  train loss 0.2504 acc 0.9347 | val loss 0.1839 acc 0.9315 | 8s\n"}
+,{"stream_name":"stdout","time":250.216187618,"data":"small_cnn ep05  train loss 0.2007 acc 0.9673 | val loss 0.1076 acc 0.9613 | 8s\n"}
+,{"stream_name":"stdout","time":258.842887358,"data":"small_cnn ep06  train loss 0.1999 acc 0.9673 | val loss 0.1121 acc 0.9583 | 9s\n"}
+,{"stream_name":"stdout","time":267.209459253,"data":"small_cnn ep07  train loss 0.1934 acc 0.9680 | val loss 0.0894 acc 0.9851 | 8s\n"}
+,{"stream_name":"stdout","time":275.537695852,"data":"small_cnn ep08  train loss 0.1855 acc 0.9763 | val loss 0.0458 acc 0.9851 | 8s\n"}
+,{"stream_name":"stdout","time":284.056820055,"data":"small_cnn ep09  train loss 0.1634 acc 0.9859 | val loss 0.0333 acc 0.9940 | 9s\n"}
+,{"stream_name":"stdout","time":292.68186793899997,"data":"small_cnn ep10  train loss 0.1856 acc 0.9725 | val loss 0.0477 acc 0.9940 | 9s\n"}
+,{"stream_name":"stdout","time":300.909224651,"data":"small_cnn ep11  train loss 0.1755 acc 0.9782 | val loss 0.0357 acc 0.9940 | 8s\n"}
+,{"stream_name":"stdout","time":309.251270567,"data":"small_cnn ep12  train loss 0.1691 acc 0.9840 | val loss 0.0382 acc 0.9911 | 8s\n"}
+,{"stream_name":"stdout","time":317.771273601,"data":"small_cnn ep13  train loss 0.1611 acc 0.9872 | val loss 0.0432 acc 0.9851 | 9s\n"}
+,{"stream_name":"stdout","time":325.967014925,"data":"small_cnn ep14  train loss 0.1703 acc 0.9840 | val loss 0.0472 acc 0.9851 | 8s\n"}
+,{"stream_name":"stdout","time":334.201338591,"data":"small_cnn ep15  train loss 0.1665 acc 0.9840 | val loss 0.0385 acc 0.9940 | 8s\n"}
+,{"stream_name":"stdout","time":342.832329583,"data":"small_cnn ep16  train loss 0.1664 acc 0.9821 | val loss 0.0290 acc 0.9970 | 9s\n"}
+,{"stream_name":"stdout","time":351.262464349,"data":"small_cnn ep17  train loss 0.1610 acc 0.9872 | val loss 0.0304 acc 0.9940 | 8s\n"}
+,{"stream_name":"stdout","time":359.756716071,"data":"small_cnn ep18  train loss 0.1641 acc 0.9859 | val loss 0.0359 acc 0.9911 | 8s\n"}
+,{"stream_name":"stdout","time":368.239369794,"data":"small_cnn ep19  train loss 0.1586 acc 0.9872 | val loss 0.0332 acc 0.9911 | 8s\n"}
+,{"stream_name":"stdout","time":376.683011071,"data":"small_cnn ep20  train loss 0.1592 acc 0.9834 | val loss 0.0335 acc 0.9911 | 8s\n"}
+,{"stream_name":"stdout","time":384.780996624,"data":"small_cnn ep21  train loss 0.1607 acc 0.9872 | val loss 0.0340 acc 0.9911 | 8s\n"}
+,{"stream_name":"stdout","time":393.363647441,"data":"small_cnn ep22  train loss 0.1572 acc 0.9878 | val loss 0.0317 acc 1.0000 | 9s\n"}
+,{"stream_name":"stdout","time":401.843919663,"data":"small_cnn ep23  train loss 0.1481 acc 0.9917 | val loss 0.0286 acc 0.9970 | 8s\n"}
+,{"stream_name":"stdout","time":410.158318101,"data":"small_cnn ep24  train loss 0.1484 acc 0.9917 | val loss 0.0263 acc 1.0000 | 8s\n"}
+,{"stream_name":"stdout","time":418.595230394,"data":"small_cnn ep25  train loss 0.1478 acc 0.9898 | val loss 0.0311 acc 0.9970 | 8s\n"}
+,{"stream_name":"stdout","time":427.067900495,"data":"small_cnn ep26  train loss 0.1515 acc 0.9898 | val loss 0.0272 acc 0.9940 | 8s\n"}
+,{"stream_name":"stdout","time":435.630158642,"data":"small_cnn ep27  train loss 0.1503 acc 0.9898 | val loss 0.0276 acc 1.0000 | 9s\n"}
+,{"stream_name":"stdout","time":444.077313797,"data":"small_cnn ep28  train loss 0.1443 acc 0.9930 | val loss 0.0263 acc 1.0000 | 8s\n"}
+,{"stream_name":"stdout","time":452.425018511,"data":"small_cnn ep29  train loss 0.1509 acc 0.9923 | val loss 0.0263 acc 0.9970 | 8s\n"}
+,{"stream_name":"stdout","time":460.858195636,"data":"small_cnn ep30  train loss 0.1558 acc 0.9840 | val loss 0.0307 acc 0.9911 | 8s\n"}
+,{"stream_name":"stderr","time":461.273741357,"data":"Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.\n"}
+,{"stream_name":"stderr","time":461.273768554,"data":"\n"}
+,{"stream_name":"stderr","time":461.273775308,"data":"Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.\n"}
+,{"stream_name":"stdout","time":462.478250861,"data":"efficientnet_b0 params: 4.01M\n"}
+,{"stream_name":"stdout","time":473.536495873,"data":"efficientnet_b0 ep01  train loss 1.6779 acc 0.6408 | val loss 1.3333 acc 0.6786 | 11s\n"}
+,{"stream_name":"stdout","time":482.024472591,"data":"efficientnet_b0 ep02  train loss 0.9299 acc 0.8086 | val loss 0.8728 acc 0.7827 | 8s\n"}
+,{"stream_name":"stdout","time":490.571789502,"data":"efficientnet_b0 ep03  train loss 0.7585 acc 0.8406 | val loss 0.9017 acc 0.7649 | 8s\n"}
+,{"stream_name":"stdout","time":503.412793342,"data":"efficientnet_b0 ep04  train loss 0.4635 acc 0.9456 | val loss 0.1285 acc 0.9435 | 13s\n"}
+,{"stream_name":"stdout","time":512.321790059,"data":"efficientnet_b0 ep05  train loss 0.3959 acc 0.9622 | val loss 0.1996 acc 0.9286 | 9s\n"}
+,{"stream_name":"stdout","time":521.371986439,"data":"efficientnet_b0 ep06  train loss 0.3366 acc 0.9731 | val loss 0.0803 acc 0.9702 | 9s\n"}
+,{"stream_name":"stdout","time":530.241081874,"data":"efficientnet_b0 ep07  train loss 0.3056 acc 0.9686 | val loss 0.1117 acc 0.9643 | 9s\n"}
+,{"stream_name":"stdout","time":539.294802209,"data":"efficientnet_b0 ep08  train loss 0.3025 acc 0.9706 | val loss 0.0719 acc 0.9702 | 9s\n"}
+,{"stream_name":"stdout","time":548.222028413,"data":"efficientnet_b0 ep09  train loss 0.2700 acc 0.9808 | val loss 0.0818 acc 0.9643 | 9s\n"}
+,{"stream_name":"stdout","time":557.153708805,"data":"efficientnet_b0 ep10  train loss 0.2872 acc 0.9667 | val loss 0.0457 acc 0.9792 | 9s\n"}
+,{"stream_name":"stdout","time":565.787207021,"data":"efficientnet_b0 ep11  train loss 0.2482 acc 0.9834 | val loss 0.0708 acc 0.9643 | 9s\n"}
+,{"stream_name":"stdout","time":574.643668038,"data":"efficientnet_b0 ep12  train loss 0.2518 acc 0.9776 | val loss 0.0691 acc 0.9732 | 9s\n"}
+,{"stream_name":"stdout","time":583.576653843,"data":"efficientnet_b0 ep13  train loss 0.2511 acc 0.9738 | val loss 0.0527 acc 0.9732 | 9s\n"}
+,{"stream_name":"stdout","time":592.45803308,"data":"efficientnet_b0 ep14  train loss 0.2425 acc 0.9802 | val loss 0.0548 acc 0.9792 | 9s\n"}
+,{"stream_name":"stdout","time":601.339666122,"data":"efficientnet_b0 ep15  train loss 0.2417 acc 0.9814 | val loss 0.0628 acc 0.9732 | 9s\n"}
+,{"stream_name":"stdout","time":601.339702749,"data":"early stopping\n"}
+,{"stream_name":"stdout","time":602.210635711,"data":"mobilenetv3_small params: 1.52M\n"}
+,{"stream_name":"stdout","time":611.031092477,"data":"mobilenetv3_small ep01  train loss 2.0367 acc 0.6472 | val loss 1.8756 acc 0.6071 | 9s\n"}
+,{"stream_name":"stdout","time":619.465572002,"data":"mobilenetv3_small ep02  train loss 0.9162 acc 0.8265 | val loss 1.0578 acc 0.7738 | 8s\n"}
+,{"stream_name":"stdout","time":627.960994321,"data":"mobilenetv3_small ep03  train loss 0.6919 acc 0.8796 | val loss 0.7744 acc 0.8274 | 8s\n"}
+,{"stream_name":"stdout","time":638.893575616,"data":"mobilenetv3_small ep04  train loss 0.6030 acc 0.9334 | val loss 0.0274 acc 0.9911 | 11s\n"}
+,{"stream_name":"stdout","time":647.58869119,"data":"mobilenetv3_small ep05  train loss 0.3298 acc 0.9693 | val loss 0.1262 acc 0.9613 | 9s\n"}
+,{"stream_name":"stdout","time":656.412565426,"data":"mobilenetv3_small ep06  train loss 0.2229 acc 0.9821 | val loss 0.0539 acc 0.9881 | 9s\n"}
+,{"stream_name":"stdout","time":665.036473608,"data":"mobilenetv3_small ep07  train loss 0.2130 acc 0.9814 | val loss 0.0510 acc 0.9821 | 9s\n"}
+,{"stream_name":"stdout","time":673.656338725,"data":"mobilenetv3_small ep08  train loss 0.1862 acc 0.9904 | val loss 0.0494 acc 0.9970 | 9s\n"}
+,{"stream_name":"stdout","time":682.420509962,"data":"mobilenetv3_small ep09  train loss 0.1596 acc 0.9955 | val loss 0.0378 acc 0.9940 | 9s\n"}
+,{"stream_name":"stdout","time":682.420559699,"data":"early stopping\n"}
+,{"stream_name":"stdout","time":684.116668054,"data":"\n"}
+,{"stream_name":"stdout","time":684.116700442,"data":"=== small_cnn ===\n"}
+,{"stream_name":"stdout","time":684.116706656,"data":"              precision    recall  f1-score   support\n"}
+,{"stream_name":"stdout","time":684.116711171,"data":"\n"}
+,{"stream_name":"stdout","time":684.116715286,"data":" Common_rust     1.0000    1.0000    1.0000       171\n"}
+,{"stream_name":"stdout","time":684.116719574,"data":"     Healthy     1.0000    1.0000    1.0000       167\n"}
+,{"stream_name":"stdout","time":684.11672383,"data":"\n"}
+,{"stream_name":"stdout","time":684.116727734,"data":"    accuracy                         1.0000       338\n"}
+,{"stream_name":"stdout","time":684.116732108,"data":"   macro avg     1.0000    1.0000    1.0000       338\n"}
+,{"stream_name":"stdout","time":684.116743814,"data":"weighted avg     1.0000    1.0000    1.0000       338\n"}
+,{"stream_name":"stdout","time":684.116747485,"data":"\n"}
+,{"stream_name":"stdout","time":685.033678427,"data":"\n"}
+,{"stream_name":"stdout","time":685.033706963,"data":"=== efficientnet_b0 ===\n"}
+,{"stream_name":"stdout","time":685.033712096,"data":"              precision    recall  f1-score   support\n"}
+,{"stream_name":"stdout","time":685.033717082,"data":"\n"}
+,{"stream_name":"stdout","time":685.033721402,"data":" Common_rust     0.9822    0.9708    0.9765       171\n"}
+,{"stream_name":"stdout","time":685.0337258,"data":"     Healthy     0.9704    0.9820    0.9762       167\n"}
+,{"stream_name":"stdout","time":685.033730173,"data":"\n"}
+,{"stream_name":"stdout","time":685.033734317,"data":"    accuracy                         0.9763       338\n"}
+,{"stream_name":"stdout","time":685.033738747,"data":"   macro avg     0.9763    0.9764    0.9763       338\n"}
+,{"stream_name":"stdout","time":685.033743163,"data":"weighted avg     0.9764    0.9763    0.9763       338\n"}
+,{"stream_name":"stdout","time":685.033747357,"data":"\n"}
+,{"stream_name":"stdout","time":685.990496825,"data":"\n"}
+,{"stream_name":"stdout","time":685.990526579,"data":"=== mobilenetv3_small ===\n"}
+,{"stream_name":"stdout","time":685.990532521,"data":"              precision    recall  f1-score   support\n"}
+,{"stream_name":"stdout","time":685.990537002,"data":"\n"}
+,{"stream_name":"stdout","time":685.990541339,"data":" Common_rust     0.9714    0.9942    0.9827       171\n"}
+,{"stream_name":"stdout","time":685.990546032,"data":"     Healthy     0.9939    0.9701    0.9818       167\n"}
+,{"stream_name":"stdout","time":685.990551473,"data":"\n"}
+,{"stream_name":"stdout","time":685.990555395,"data":"    accuracy                         0.9822       338\n"}
+,{"stream_name":"stdout","time":685.990559714,"data":"   macro avg     0.9826    0.9821    0.9822       338\n"}
+,{"stream_name":"stdout","time":685.990564032,"data":"weighted avg     0.9825    0.9822    0.9822       338\n"}
+,{"stream_name":"stdout","time":685.990568381,"data":"\n"}
+,{"stream_name":"stdout","time":698.175960637,"data":"/tmp/corn_rust_cropped/test/Common_rust/01ba8f83712eb410.jpg -\u003e {'Common_rust': 1.0, 'Healthy': 0.0}\n"}
+,{"stream_name":"stdout","time":698.175995143,"data":"saved outputs: ['__notebook__.ipynb', 'confusion_matrices.png', 'crop_stats.csv', 'efficientnet_b0_best.pth', 'gradcam_efficientnet_b0.png', 'gradcam_mobilenetv3_small.png', 'gradcam_small_cnn.png', 'histories.json', 'learning_curves.png', 'mobilenetv3_small_best.pth', 'model_info.json', 'results.csv', 'samples.png', 'small_cnn_best.pth']\n"}
+,{"stream_name":"stderr","time":704.649183183,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":704.649238986,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":704.834301577,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":704.834328074,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":705.705038745,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
+,{"stream_name":"stderr","time":705.925685643,"data":"[NbConvertApp] Writing 7148376 bytes to __notebook__.ipynb\n"}
+,{"stream_name":"stderr","time":708.701205138,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
+,{"stream_name":"stderr","time":709.482974109,"data":"[NbConvertApp] Support files will be in __results___files/\n"}
+,{"stream_name":"stderr","time":709.483005798,"data":"[NbConvertApp] Making directory __results___files\n"}
+,{"stream_name":"stderr","time":709.483763288,"data":"[NbConvertApp] Making directory __results___files\n"}
+,{"stream_name":"stderr","time":709.484010675,"data":"[NbConvertApp] Making directory __results___files\n"}
+,{"stream_name":"stderr","time":709.48423839,"data":"[NbConvertApp] Making directory __results___files\n"}
+,{"stream_name":"stderr","time":709.485004577,"data":"[NbConvertApp] Making directory __results___files\n"}
+,{"stream_name":"stderr","time":709.485798966,"data":"[NbConvertApp] Making directory __results___files\n"}
+,{"stream_name":"stderr","time":709.486616771,"data":"[NbConvertApp] Writing 441484 bytes to __results__.html\n"}
+]

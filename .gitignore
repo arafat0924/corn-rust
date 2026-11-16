@@ -1,0 +1,30 @@
+# Secrets: never commit
+Kaggle API.txt
+kaggle.json
+access_token
+*.key
+.env
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Data and model weights (too large for git)
+data/
+*.pth
+*.pt
+*.onnx
+*.zip
+
+# Local training outputs
+outputs/
+results/run3_local/
+
+# Personal working notes
+PROJECT_LOG.md
+
+# Gradio
+.gradio/
+flagged/

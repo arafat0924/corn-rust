@@ -1,0 +1,4 @@
+model,test_acc,macro_precision,macro_recall,macro_f1,roc_auc,params_M,size_MB,train_min,ms_per_img
+small_cnn,1.0,1.0,1.0,1.0,1.0,0.3894,1.5709,4.3063,2.2828
+efficientnet_b0,0.9763,0.9763,0.9764,0.9763,0.9984,4.0101,16.3398,2.3144,2.6565
+mobilenetv3_small,0.9822,0.9826,0.9821,0.9822,0.999,1.5199,6.2167,1.3369,2.7189
