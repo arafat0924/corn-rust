@@ -1,0 +1,19 @@
+model,set,input,n,acc_as_published,acc_restricted
+Published: plant-disease-dinov2-small,test (main source),original,339,1.0,1.0
+Published: plant-disease-dinov2-small,test (main source),leaf_crop,339,0.5575,0.9735
+Published: plant-disease-dinov2-small,test_other (BCDD = PlantVillage),original,96,1.0,1.0
+Published: plant-disease-dinov2-small,test_other (BCDD = PlantVillage),leaf_crop,96,0.5729,0.8021
+Published: plantvillage-resnet18,test (main source),original,339,0.9853,1.0
+Published: plantvillage-resnet18,test (main source),leaf_crop,339,0.9115,0.9882
+Published: plantvillage-resnet18,test_other (BCDD = PlantVillage),original,96,0.6979,0.9792
+Published: plantvillage-resnet18,test_other (BCDD = PlantVillage),leaf_crop,96,0.6979,0.7812
+Published: corn YOLO (Shaq2),test (main source),original,339,1.0,1.0
+Published: corn YOLO (Shaq2),test (main source),leaf_crop,339,0.8673,0.8761
+Published: corn YOLO (Shaq2),test_other (BCDD = PlantVillage),original,96,0.6146,0.6146
+Published: corn YOLO (Shaq2),test_other (BCDD = PlantVillage),leaf_crop,96,0.5,0.5
+Ours: Ensemble SmallCNN+MobileNetV3,test (main source),leaf_crop,339,1.0,1.0
+Ours: Ensemble SmallCNN+MobileNetV3,test_other (BCDD = PlantVillage),leaf_crop,96,0.9792,0.9792
+Ours: MobileNetV3-Small,test (main source),leaf_crop,339,0.9882,0.9882
+Ours: MobileNetV3-Small,test_other (BCDD = PlantVillage),leaf_crop,96,0.9896,0.9896
+Ours: SmallCNN,test (main source),leaf_crop,339,0.9971,0.9971
+Ours: SmallCNN,test_other (BCDD = PlantVillage),leaf_crop,96,0.9375,0.9375
