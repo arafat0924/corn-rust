@@ -1,7 +1,7 @@
 r"""Step 10: Corn Common Rust detector, a Gradio demo app.
 
 Run:  .\.venv\Scripts\python.exe app\app.py      then open http://127.0.0.1:7860
-Uses the run-2 weights in results/run2/ (trained after removing the black-background shortcut).
+Uses the run-3 weights in results/run3/.
 """
 import json
 from pathlib import Path
@@ -142,12 +142,14 @@ def load_gate():
 
 GATE = None if __name__.startswith("app_core") else load_gate()
 
-REJECT_MSG = {
-    "corn_other": ("**This looks like a corn leaf with a disease this model doesn't cover** "
-                   "(e.g. gray leaf spot or northern leaf blight). It only knows common rust vs healthy."),
-    "other_crop": "**This looks like a leaf of another crop, not corn.** The model only knows corn leaves.",
-    "not_leaf": "**This doesn't look like a plant leaf.** Upload a clear photo of a corn leaf.",
-}
+UNSUPPORTED_IMAGE_MSG = (
+    "### This doesn't look like a corn leaf.\n\n"
+    "Please upload a clear, close-up photo of a single corn (maize) leaf. "
+    "This detector checks for common rust and healthy corn leaves."
+)
+# A nearest-reference group cannot establish that an arbitrary rejected image
+# really is a leaf or another crop. Keep rejection messages neutral.
+REJECT_MSG = dict.fromkeys(("corn_other", "other_crop", "not_leaf"), UNSUPPORTED_IMAGE_MSG)
 
 
 @torch.no_grad()
@@ -213,7 +215,7 @@ def predict(img, model_name):
         group, view = gate_check(crop)
         # the published model knows other corn diseases, so let those through for it
         if group != "corn" and not (published and group == "corn_other"):
-            return None, None, REJECT_MSG[group] + " It won't guess."
+            return None, None, REJECT_MSG.get(group, UNSUPPORTED_IMAGE_MSG)
         crop = view if view is not None else crop
     if published:  # published models expect the full photo, not our leaf-only crop
         conf, overlay = classify_published(img), None
@@ -247,27 +249,118 @@ def examples():
     return [[str(p), next(iter(MODELS))] for p in picks]
 
 
-with gr.Blocks() as demo:
-    gr.Markdown("# Corn Common Rust Detector\n"
-                "Upload a photo of a **corn (maize) leaf**. The model says whether it has **common rust** "
-                "or is **healthy**, and the heatmap shows where it looked (red = most important).")
-    with gr.Row():
-        with gr.Column():
-            inp = gr.Image(type="pil", label="Corn leaf photo", height=360)
-            model_dd = gr.Dropdown(list(MODELS), value=next(iter(MODELS)), label="Model")
-            btn = gr.Button("Detect", variant="primary")
-        with gr.Column():
-            out_label = gr.Label(num_top_classes=4, label="Prediction")
-            out_note = gr.Markdown()
-            out_cam = gr.Image(label="Grad-CAM: where the model looked", height=300)
-    btn.click(predict, [inp, model_dd], [out_label, out_cam, out_note])
+READY_NOTE = "### A leaf check, whenever you're ready.\n\nUpload one corn leaf, pick a model, and select **Analyze leaf**. Your result and visual explanation will appear here."
+
+
+def model_description(name):
+    if name.startswith("Ensemble"):
+        return "SmallCNN and MobileNetV3 working together. A good place to start."
+    if name.startswith("MobileNet"):
+        return "A compact model for an alternative check."
+    if name.startswith("SmallCNN"):
+        return "Our smallest classifier, trained specifically for this task."
+    if name == PUBLISHED_NAME:
+        return "An independent corn classifier with four classes. No heatmap is available."
+    return "An alternative classifier for comparing your result."
+
+
+def predict_ui(img, model_name):
+    conf, overlay, note = predict(img, model_name)
+    return (gr.update(value=conf, visible=conf is not None),
+            gr.update(value=overlay, visible=overlay is not None), note)
+
+
+def reset_results():
+    return gr.update(value=None, visible=False), gr.update(value=None, visible=False), READY_NOTE
+
+
+def photo_changed(img):
+    return (*reset_results(), gr.update(interactive=img is not None))
+
+
+def model_changed(name):
+    return model_description(name), *reset_results()
+
+
+def clear_photo():
+    return None, *reset_results(), gr.update(interactive=False)
+
+
+def sample_rust():
+    with Image.open(Path(__file__).with_name("assets") / "sample-rust.png") as image:
+        return image.convert("RGB")
+
+
+def sample_healthy():
+    with Image.open(Path(__file__).with_name("assets") / "sample-healthy.png") as image:
+        return image.convert("RGB")
+
+
+MODEL_CHOICES = []
+for name in MODELS:
+    label = ("Ensemble · Recommended" if name.startswith("Ensemble") else
+             "MobileNetV3" if name.startswith("MobileNet") else
+             "SmallCNN" if name.startswith("SmallCNN") else
+             "Published corn model" if name == PUBLISHED_NAME else "EfficientNet B0")
+    MODEL_CHOICES.append((label, name))
+
+THEME = gr.themes.Soft(primary_hue="emerald", secondary_hue="teal", neutral_hue="slate",
+                       font=["Segoe UI", "Arial", "sans-serif"], radius_size="lg").set(
+    body_background_fill="#f4f6f1", body_background_fill_dark="#101a16",
+    block_background_fill="#ffffff", block_background_fill_dark="#18251e",
+    block_border_color="#dfe6dc", block_border_color_dark="#304438",
+    button_primary_background_fill="#176143", button_primary_background_fill_dark="#9cdbb4",
+    button_primary_text_color="#ffffff", button_primary_text_color_dark="#102b1b",
+    button_primary_background_fill_hover="#104c34", button_primary_background_fill_hover_dark="#b2e8c5",
+)
+CSS = "\n".join(Path(__file__).with_name(name).read_text(encoding="utf-8")
+                for name in ("ui.css", "scene.css"))
+MOTION_JS = Path(__file__).with_name("ui.js").read_text(encoding="utf-8")
+SCENE_HTML = Path(__file__).with_name("scene.html").read_text(encoding="utf-8")
+
+with gr.Blocks(title="CornCare | Corn leaf health", analytics_enabled=False) as demo:
+    gr.HTML(SCENE_HTML, elem_id="corncare-scene")
+    with gr.Row(elem_id="workspace"):
+        with gr.Column(elem_id="upload-panel", min_width=310):
+            gr.Markdown("## Bring a leaf. We'll look closer.\nOne corn leaf, in focus and in good light.", elem_classes="section-heading")
+            inp = gr.Image(type="pil", label="Corn leaf photo", height=310, sources=["upload", "webcam", "clipboard"], elem_id="leaf-upload")
+            gr.Markdown("No photo handy? Try a presentation sample.", elem_classes="cc-sample-caption")
+            with gr.Row():
+                rust_sample = gr.Button("Rust sample", size="sm", elem_classes="cc-sample-btn")
+                healthy_sample = gr.Button("Healthy sample", size="sm", elem_classes="cc-sample-btn")
+            model_dd = gr.Radio(MODEL_CHOICES, value=next(iter(MODELS)), label="Choose a model", elem_id="model-choice")
+            model_help = gr.Markdown(model_description(next(iter(MODELS))), elem_id="model-help")
+            with gr.Row():
+                btn = gr.Button("Analyze leaf", variant="primary", interactive=False, scale=3, elem_id="analyze")
+                clear_btn = gr.Button("Clear", scale=1, elem_id="clear")
+        with gr.Column(elem_id="results-panel", min_width=310):
+            gr.Markdown("## The leaf report\nModel scores and the regions that influenced the result.", elem_classes="section-heading")
+            out_note = gr.Markdown(READY_NOTE, elem_id="result-note")
+            out_label = gr.Label(num_top_classes=4, label="Model scores", visible=False, elem_id="prediction")
+            out_cam = gr.Image(label="Heatmap · regions that influenced the result", height=300, visible=False, elem_id="heatmap")
+            with gr.Accordion("Tips for a useful check", open=False):
+                gr.Markdown("Use one corn leaf in good light. Keep it in focus and fill most of the photo with the leaf.\n\n"
+                            "The detector covers **common rust and healthy** leaves. Heatmap colors show influence on the prediction, not disease severity.")
+    analysis = btn.click(predict_ui, [inp, model_dd], [out_label, out_cam, out_note],
+                         concurrency_limit=1, api_name="analyze",
+                         js="(image, model) => { window.cornCareMotion?.begin(); return [image, model]; }")
+    analysis.success(fn=None, inputs=[out_note], outputs=[], queue=False, api_name=False,
+                     js="(note) => { window.cornCareMotion?.finish(note); return []; }")
+    analysis.failure(fn=None, inputs=[], outputs=[], queue=False, api_name=False,
+                     js="() => { window.cornCareMotion?.fail(); return []; }")
+    reset_js = "() => { window.cornCareMotion?.reset(); return []; }"
+    inp.change(photo_changed, inp, [out_label, out_cam, out_note, btn], queue=False, api_name=False,
+               cancels=[analysis]).then(fn=None, outputs=[], queue=False, api_name=False, js=reset_js)
+    model_dd.change(model_changed, model_dd, [model_help, out_label, out_cam, out_note], queue=False, api_name=False,
+                    cancels=[analysis]).then(fn=None, outputs=[], queue=False, api_name=False, js=reset_js)
+    clear_btn.click(clear_photo, outputs=[inp, out_label, out_cam, out_note, btn], queue=False, api_name=False,
+                    cancels=[analysis]).then(fn=None, outputs=[], queue=False, api_name=False, js=reset_js)
+    rust_sample.click(sample_rust, outputs=inp, queue=False, api_name=False)
+    healthy_sample.click(sample_healthy, outputs=inp, queue=False, api_name=False)
     if examples():
-        gr.Examples(examples(), inputs=[inp, model_dd], label="Test-set examples (never seen in training)")
-    gr.Markdown("*A gate checks first that the photo resembles our corn-leaf training data. On held-out "
-                "tests it rejected 100% of non-plant photos and 99.7% of other crops' leaves, and accepted "
-                "98% of real corn leaves. Corn leaves with **other** diseases slip through about 21% of the "
-                "time and then get labelled rust or healthy. Course project, not a substitute for expert "
-                "diagnosis.*")
+        gr.Examples(examples(), inputs=[inp, model_dd], label="Try a test photo")
+    gr.Markdown("A course-project prototype for close-up corn leaf photos. The input check and predictions can be wrong. "
+                "For a field diagnosis, consult an agriculture professional.", elem_id="footer-note")
 
 if __name__ == "__main__":
-    demo.launch()
+    demo.launch(theme=THEME, css=CSS, js=MOTION_JS, footer_links=[])
