@@ -1,7 +1,7 @@
 # plant-disease
 
 Deep-learning detector for **corn (maize) common rust** from leaf photos, built as a course project with a
-Bangladesh focus. A binary classifier (Common rust vs Healthy) with a Gradio demo, Grad-CAM explanations,
+Bangladesh focus. A binary classifier (Common rust vs Healthy) with a one-page web demo, Grad-CAM explanations,
 and an "is this a corn leaf?" gate that refuses to guess on unrelated images.
 
 ## Results (run 3, held-out test sets)
@@ -41,24 +41,37 @@ scripts/            data pipeline (run in this order)
   download_models.py -> fetches the trained models from the GitHub release
 notebooks/train_corn_rust.py   training notebook source (edit this, then regenerate the .ipynb)
 notebooks/kaggle/              Kaggle kernel config (GPU, dataset input)
-app/app.py                     Gradio demo
+app/app.py                     web demo: model pipeline + FastAPI server
+app/static/                    the demo page (index.html, style.css, app.js)
 results/run1..3/               metrics, learning curves, confusion matrices, Grad-CAM
 reports/                       exploration, cleaning, gate and app evaluation reports
 ```
 
 ## Quick start (use the trained models, no dataset or GPU needed)
 ```powershell
-git clone https://github.com/sfthanif/plant-disease.git
-cd plant-disease
-py -3.13 -m venv .venv
+git clone https://github.com/arafat0924/corn-rust.git
+cd corn-rust
+py -3.12 -m venv .venv
 .\.venv\Scripts\python.exe -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
-.\.venv\Scripts\python.exe -m pip install timm gradio pillow scipy matplotlib
+.\.venv\Scripts\python.exe -m pip install timm fastapi uvicorn python-multipart pillow scipy matplotlib
 .\.venv\Scripts\python.exe scripts\download_models.py   # 37 MB of trained models from the v1.0 release
 .\.venv\Scripts\python.exe app\app.py                    # open http://127.0.0.1:7860
 ```
 The trained models are attached to the [v1.0 release](https://github.com/sfthanif/plant-disease/releases/tag/v1.0)
 (`small_cnn_best.pth`, `mobilenetv3_small_best.pth`, `efficientnet_b0_best.pth`, `ood_bank.pt`). The first run
 also downloads ImageNet weights for the gate (internet needed once). Runs on a normal CPU.
+
+## Hosting the page without the backend (static demo)
+`scripts\build_static_site.py` writes a backend-free copy of the page to `site/` (about 0.4 MB). It runs both
+sample leaves through every model and saves the results in `site/demo/`; when the page finds no `/api`
+server it shows those saved results. Uploads need the real server (they are switched off with
+`UPLOAD_ENABLED` in `app/static/app.js`). Serve the contents of `site/` from any web server, e.g. nginx:
+```powershell
+.\.venv\Scripts\python.exe scripts\build_static_site.py
+tar -czf $env:TEMP\cornrust-site.tgz -C site .
+scp $env:TEMP\cornrust-site.tgz <user>@<server>:/tmp/
+ssh <user>@<server> "rm -rf /var/www/cornrust/* && tar -xzf /tmp/cornrust-site.tgz -C /var/www/cornrust"
+```
 
 ## Retraining (needs the datasets)
 Install the full dependencies (`imagehash pandas scikit-learn tqdm kaggle` as well), run the pipeline in

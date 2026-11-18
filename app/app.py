@@ -1,19 +1,24 @@
-r"""Step 10: Corn Common Rust detector, a Gradio demo app.
+r"""Corn common rust detector: web demo.
 
 Run:  .\.venv\Scripts\python.exe app\app.py      then open http://127.0.0.1:7860
+Serves a one-page frontend (app/static/) and a small JSON API (/api/models, /api/analyze).
 Uses the run-3 weights in results/run3/.
+The model functions below are also imported by scripts/eval_app.py, eval_published.py and
+build_ood_gate.py, so keep their names and behaviour.
 """
+import base64
+import io
 import json
+import threading
 from pathlib import Path
 
-import gradio as gr
 import numpy as np
 import timm
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from matplotlib import colormaps
-from PIL import Image
+from PIL import Image, ImageOps
 from scipy.ndimage import distance_transform_cdt
 from torchvision import transforms
 
@@ -24,6 +29,7 @@ CLASSES = INFO["classes"]
 IMG = INFO["img_size"]
 BLACK_THR, MASK_RES = 20, 128
 UNCERTAIN = 0.75  # below this top-class probability, tell the user the result is unreliable
+MAX_BYTES = 15 * 1024 * 1024
 
 TF = transforms.Compose([transforms.Resize(256), transforms.CenterCrop(IMG), transforms.ToTensor(),
                          transforms.Normalize(INFO["mean"], INFO["std"])])
@@ -142,15 +148,6 @@ def load_gate():
 
 GATE = None if __name__.startswith("app_core") else load_gate()
 
-UNSUPPORTED_IMAGE_MSG = (
-    "### This doesn't look like a corn leaf.\n\n"
-    "Please upload a clear, close-up photo of a single corn (maize) leaf. "
-    "This detector checks for common rust and healthy corn leaves."
-)
-# A nearest-reference group cannot establish that an arbitrary rejected image
-# really is a leaf or another crop. Keep rejection messages neutral.
-REJECT_MSG = dict.fromkeys(("corn_other", "other_crop", "not_leaf"), UNSUPPORTED_IMAGE_MSG)
-
 
 @torch.no_grad()
 def gate_check(img):
@@ -205,162 +202,115 @@ def gradcam(model, layer, x):
     return logits.softmax(1)[0].detach(), cam.detach().numpy()
 
 
-def predict(img, model_name):
-    if img is None:
-        return None, None, "Upload a corn leaf photo first."
-    img = img.convert("RGB")
+# ---------------------------------------------------------------- web app
+
+def nice(label):
+    return label.replace("_", " ").capitalize()
+
+
+def data_url(img):
+    buf = io.BytesIO()
+    img.save(buf, "JPEG", quality=90)
+    return "data:image/jpeg;base64," + base64.b64encode(buf.getvalue()).decode()
+
+
+def heat_overlay(crop, cam):
+    view = np.asarray(VIEW(crop), dtype=np.float32) / 255
+    return Image.fromarray((np.clip(0.55 * view + 0.45 * colormaps["jet"](cam)[..., :3], 0, 1) * 255)
+                           .astype(np.uint8))
+
+
+def analyze(img, model_name):
+    """Full pipeline for one photo: leaf crop -> gate -> classifier -> Grad-CAM. Returns a JSON-ready dict."""
+    img = ImageOps.exif_transpose(img).convert("RGB")   # phone photos carry their rotation in EXIF
     crop = leaf_crop(img)
     published = model_name == PUBLISHED_NAME
     if GATE is not None:
         group, view = gate_check(crop)
         # the published model knows other corn diseases, so let those through for it
         if group != "corn" and not (published and group == "corn_other"):
-            return None, None, REJECT_MSG.get(group, UNSUPPORTED_IMAGE_MSG)
+            return {"status": "rejected", "verdict": "rejected", "title": "This doesn't look like a corn leaf.",
+                    "detail": "Upload a clear, close-up photo of a single corn (maize) leaf. "
+                              "This detector checks for common rust and healthy leaves."}
         crop = view if view is not None else crop
     if published:  # published models expect the full photo, not our leaf-only crop
-        conf, overlay = classify_published(img), None
+        conf, photo, heat = classify_published(img), VIEW(img), None
     else:
         probs, cam = classify(crop, model_name)
-        view = np.asarray(VIEW(crop), dtype=np.float32) / 255
-        overlay = Image.fromarray((np.clip(0.55 * view + 0.45 * colormaps["jet"](cam)[..., :3], 0, 1) * 255)
-                                  .astype(np.uint8))
         conf = {c: float(p) for c, p in zip(CLASSES, probs)}
+        photo, heat = VIEW(crop), heat_overlay(crop, cam)
     top = max(conf, key=conf.get)
     if conf[top] < UNCERTAIN:
-        note = (f"**Uncertain ({conf[top]:.0%}).** Try a closer, sharper photo of a single corn leaf "
-                "in good light.")
+        verdict, title = "uncertain", "Uncertain"
+        detail = "Try a closer, sharper photo of a single corn leaf in good light."
     elif top == "Common_rust":
-        note = (f"**Common rust detected ({conf[top]:.0%}).** Look for small brown, powdery pustules on "
-                "both leaf surfaces. Consult a local agriculture officer about resistant varieties or "
-                "fungicide timing.")
+        verdict, title = "rust", "Common rust"
+        detail = ("Look for small brown, powdery pustules on both leaf surfaces. Ask a local agriculture "
+                  "officer about resistant varieties or fungicide timing.")
     elif top == "Healthy":
-        note = f"**Leaf looks healthy ({conf[top]:.0%}).** No rust pustules found."
+        verdict, title, detail = "healthy", "Healthy", "No rust pustules found."
     else:
-        note = (f"**Possible {top.replace('_', ' ')} ({conf[top]:.0%}).** Only the published model covers "
-                "this disease; our models know common rust vs healthy only.")
-    if published:
-        note += "\n\n*Published model (not trained by us), so no Grad-CAM heatmap is available.*"
-    return conf, overlay, note
+        verdict, title = "other", f"Possible {nice(top).lower()}"
+        detail = "Only the published model covers this disease. Our models know common rust and healthy only."
+    return {"status": "ok", "verdict": verdict, "title": title, "detail": detail,
+            "label": nice(top), "confidence": conf[top],
+            "scores": [{"label": nice(c), "value": v} for c, v in sorted(conf.items(), key=lambda kv: -kv[1])],
+            "photo": data_url(photo), "heatmap": data_url(heat) if heat is not None else None}
 
 
-def examples():
-    test = ROOT / "data" / "final" / "corn_rust" / "test"
-    picks = [p for c in CLASSES for p in sorted((test / c).glob("*.jpg"))[:3]] if test.exists() else []
-    return [[str(p), next(iter(MODELS))] for p in picks]
+def model_catalog():
+    items = []
+    for key in MODELS:
+        if key == PUBLISHED_NAME:
+            label, detail = "Published YOLO", "Shaq2's corn classifier from Hugging Face · 4 classes · not ours"
+        elif key.startswith("Ensemble"):
+            label, detail = "Ensemble", "SmallCNN + MobileNetV3, averaged · recommended"
+        else:
+            label = key.split(" (")[0]
+            acc = key[len(label) + 2:-1] if " (" in key else ""
+            detail = "Test " + acc.replace(", other source", " · other source") if acc else ""
+        items.append({"id": key, "label": label, "detail": detail})
+    return items
 
 
-READY_NOTE = "### A leaf check, whenever you're ready.\n\nUpload one corn leaf, pick a model, and select **Analyze leaf**. Your result and visual explanation will appear here."
+def serve(host="127.0.0.1", port=7860):
+    import uvicorn
+    from fastapi import FastAPI, File, Form, UploadFile
+    from fastapi.responses import FileResponse, JSONResponse
+    from fastapi.staticfiles import StaticFiles
 
+    here = Path(__file__).resolve().parent
+    api = FastAPI(title="Corn rust detector", docs_url=None, redoc_url=None, openapi_url=None)
+    lock = threading.Lock()   # Grad-CAM hooks live on shared models: one analysis at a time
 
-def model_description(name):
-    if name.startswith("Ensemble"):
-        return "SmallCNN and MobileNetV3 working together. A good place to start."
-    if name.startswith("MobileNet"):
-        return "A compact model for an alternative check."
-    if name.startswith("SmallCNN"):
-        return "Our smallest classifier, trained specifically for this task."
-    if name == PUBLISHED_NAME:
-        return "An independent corn classifier with four classes. No heatmap is available."
-    return "An alternative classifier for comparing your result."
+    @api.get("/api/models")
+    def models():
+        return {"models": model_catalog(), "default": next(iter(MODELS))}
 
+    @api.post("/api/analyze")
+    def analyze_photo(image: UploadFile = File(...), model: str = Form("")):
+        data = image.file.read(MAX_BYTES + 1)
+        if len(data) > MAX_BYTES:
+            return JSONResponse({"status": "error", "detail": "That file is over 15 MB."}, 413)
+        try:
+            img = Image.open(io.BytesIO(data))
+            img.load()
+        except Exception:
+            return JSONResponse({"status": "error",
+                                 "detail": "That file isn't an image we can read. Try a JPG, PNG or WebP."}, 400)
+        with lock:
+            return analyze(img, model if model in MODELS else next(iter(MODELS)))
 
-def predict_ui(img, model_name):
-    conf, overlay, note = predict(img, model_name)
-    return (gr.update(value=conf, visible=conf is not None),
-            gr.update(value=overlay, visible=overlay is not None), note)
+    api.mount("/static", StaticFiles(directory=here / "static"), name="static")
+    api.mount("/assets", StaticFiles(directory=here / "assets"), name="assets")
 
+    @api.get("/")
+    def index():
+        return FileResponse(here / "static" / "index.html")
 
-def reset_results():
-    return gr.update(value=None, visible=False), gr.update(value=None, visible=False), READY_NOTE
+    print(f"Corn rust detector running at http://{host}:{port}", flush=True)
+    uvicorn.run(api, host=host, port=port, log_level="warning")
 
-
-def photo_changed(img):
-    return (*reset_results(), gr.update(interactive=img is not None))
-
-
-def model_changed(name):
-    return model_description(name), *reset_results()
-
-
-def clear_photo():
-    return None, *reset_results(), gr.update(interactive=False)
-
-
-def sample_rust():
-    with Image.open(Path(__file__).with_name("assets") / "sample-rust.png") as image:
-        return image.convert("RGB")
-
-
-def sample_healthy():
-    with Image.open(Path(__file__).with_name("assets") / "sample-healthy.png") as image:
-        return image.convert("RGB")
-
-
-MODEL_CHOICES = []
-for name in MODELS:
-    label = ("Ensemble · Recommended" if name.startswith("Ensemble") else
-             "MobileNetV3" if name.startswith("MobileNet") else
-             "SmallCNN" if name.startswith("SmallCNN") else
-             "Published corn model" if name == PUBLISHED_NAME else "EfficientNet B0")
-    MODEL_CHOICES.append((label, name))
-
-THEME = gr.themes.Soft(primary_hue="emerald", secondary_hue="teal", neutral_hue="slate",
-                       font=["Segoe UI", "Arial", "sans-serif"], radius_size="lg").set(
-    body_background_fill="#f4f6f1", body_background_fill_dark="#101a16",
-    block_background_fill="#ffffff", block_background_fill_dark="#18251e",
-    block_border_color="#dfe6dc", block_border_color_dark="#304438",
-    button_primary_background_fill="#176143", button_primary_background_fill_dark="#9cdbb4",
-    button_primary_text_color="#ffffff", button_primary_text_color_dark="#102b1b",
-    button_primary_background_fill_hover="#104c34", button_primary_background_fill_hover_dark="#b2e8c5",
-)
-CSS = "\n".join(Path(__file__).with_name(name).read_text(encoding="utf-8")
-                for name in ("ui.css", "scene.css"))
-MOTION_JS = Path(__file__).with_name("ui.js").read_text(encoding="utf-8")
-SCENE_HTML = Path(__file__).with_name("scene.html").read_text(encoding="utf-8")
-
-with gr.Blocks(title="CornCare | Corn leaf health", analytics_enabled=False) as demo:
-    gr.HTML(SCENE_HTML, elem_id="corncare-scene")
-    with gr.Row(elem_id="workspace"):
-        with gr.Column(elem_id="upload-panel", min_width=310):
-            gr.Markdown("## Bring a leaf. We'll look closer.\nOne corn leaf, in focus and in good light.", elem_classes="section-heading")
-            inp = gr.Image(type="pil", label="Corn leaf photo", height=310, sources=["upload", "webcam", "clipboard"], elem_id="leaf-upload")
-            gr.Markdown("No photo handy? Try a presentation sample.", elem_classes="cc-sample-caption")
-            with gr.Row():
-                rust_sample = gr.Button("Rust sample", size="sm", elem_classes="cc-sample-btn")
-                healthy_sample = gr.Button("Healthy sample", size="sm", elem_classes="cc-sample-btn")
-            model_dd = gr.Radio(MODEL_CHOICES, value=next(iter(MODELS)), label="Choose a model", elem_id="model-choice")
-            model_help = gr.Markdown(model_description(next(iter(MODELS))), elem_id="model-help")
-            with gr.Row():
-                btn = gr.Button("Analyze leaf", variant="primary", interactive=False, scale=3, elem_id="analyze")
-                clear_btn = gr.Button("Clear", scale=1, elem_id="clear")
-        with gr.Column(elem_id="results-panel", min_width=310):
-            gr.Markdown("## The leaf report\nModel scores and the regions that influenced the result.", elem_classes="section-heading")
-            out_note = gr.Markdown(READY_NOTE, elem_id="result-note")
-            out_label = gr.Label(num_top_classes=4, label="Model scores", visible=False, elem_id="prediction")
-            out_cam = gr.Image(label="Heatmap · regions that influenced the result", height=300, visible=False, elem_id="heatmap")
-            with gr.Accordion("Tips for a useful check", open=False):
-                gr.Markdown("Use one corn leaf in good light. Keep it in focus and fill most of the photo with the leaf.\n\n"
-                            "The detector covers **common rust and healthy** leaves. Heatmap colors show influence on the prediction, not disease severity.")
-    analysis = btn.click(predict_ui, [inp, model_dd], [out_label, out_cam, out_note],
-                         concurrency_limit=1, api_name="analyze",
-                         js="(image, model) => { window.cornCareMotion?.begin(); return [image, model]; }")
-    analysis.success(fn=None, inputs=[out_note], outputs=[], queue=False, api_name=False,
-                     js="(note) => { window.cornCareMotion?.finish(note); return []; }")
-    analysis.failure(fn=None, inputs=[], outputs=[], queue=False, api_name=False,
-                     js="() => { window.cornCareMotion?.fail(); return []; }")
-    reset_js = "() => { window.cornCareMotion?.reset(); return []; }"
-    inp.change(photo_changed, inp, [out_label, out_cam, out_note, btn], queue=False, api_name=False,
-               cancels=[analysis]).then(fn=None, outputs=[], queue=False, api_name=False, js=reset_js)
-    model_dd.change(model_changed, model_dd, [model_help, out_label, out_cam, out_note], queue=False, api_name=False,
-                    cancels=[analysis]).then(fn=None, outputs=[], queue=False, api_name=False, js=reset_js)
-    clear_btn.click(clear_photo, outputs=[inp, out_label, out_cam, out_note, btn], queue=False, api_name=False,
-                    cancels=[analysis]).then(fn=None, outputs=[], queue=False, api_name=False, js=reset_js)
-    rust_sample.click(sample_rust, outputs=inp, queue=False, api_name=False)
-    healthy_sample.click(sample_healthy, outputs=inp, queue=False, api_name=False)
-    if examples():
-        gr.Examples(examples(), inputs=[inp, model_dd], label="Try a test photo")
-    gr.Markdown("A course-project prototype for close-up corn leaf photos. The input check and predictions can be wrong. "
-                "For a field diagnosis, consult an agriculture professional.", elem_id="footer-note")
 
 if __name__ == "__main__":
-    demo.launch(theme=THEME, css=CSS, js=MOTION_JS, footer_links=[])
+    serve()

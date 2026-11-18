@@ -28,3 +28,11 @@ PROJECT_LOG.md
 # Gradio
 .gradio/
 flagged/
+
+# Static build of the demo page (scripts/build_static_site.py)
+site/
+
+# Presentation files (local only)
+*.pptx
+*.docx
+Corn_Rust_Presentation_Script_English.md
