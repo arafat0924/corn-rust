@@ -56,7 +56,11 @@ def make_grid(df, ds, per_class=4, tile=160):
 
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
-    files = [p for p in RAW.rglob("*") if p.suffix.lower() in EXTS and p.is_file()]
+    # Case-insensitive name order, the order Windows (NTFS) listed the files in when the original
+    # split was made. Row order decides the seeded train/val/test split, so this keeps the split
+    # identical on Linux (where rglob order is arbitrary) and on Windows.
+    files = sorted((p for p in RAW.rglob("*") if p.suffix.lower() in EXTS and p.is_file()),
+                   key=lambda p: [part.upper() for part in p.relative_to(RAW).parts])
     print(f"found {len(files)} image files")
     with ThreadPoolExecutor(8) as ex:
         df = pd.DataFrame(list(ex.map(inspect, files)))

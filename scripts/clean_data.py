@@ -33,7 +33,9 @@ SOURCE_RANK = {"riceleafbd": 5, "dhan_shomadhan": 5, "veg_leaf_bd": 4, "wheat_bd
 
 
 def proc_id(src_path: str) -> str:
-    return hashlib.sha1(src_path.encode("utf-8")).hexdigest()[:16]
+    # Hash the Windows form of the path, so ids (= processed file names) match the originals
+    # built on Windows no matter which OS runs this.
+    return hashlib.sha1(src_path.replace("/", "\\").encode("utf-8")).hexdigest()[:16]
 
 
 def dihedral(im):

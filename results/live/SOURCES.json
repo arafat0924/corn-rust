@@ -1,0 +1,10 @@
+{
+ "note": "The models the app serves (chosen 2026-11-20 by scripts/compare_runs.py, whole-app accuracy).",
+ "small_cnn_best.pth": "run3",
+ "mobilenetv3_small_best.pth": "run3",
+ "efficientnet_b0_best.pth": "run4",
+ "model_info.json": "run3 (identical in run4)",
+ "ood_gate.json": "run4 (gate v3: + synthetic graphics)",
+ "ood_bank.pt": "run4 (gate v3)",
+ "results.csv": "rows copied from the run each model comes from"
+}

@@ -1,0 +1,7 @@
+set,n,accepted_single,cnn_acc_single,cnn_acc_on_accepted_single,accepted_multi,cnn_acc_multi,cnn_acc_on_accepted_multi
+our corn rust/healthy TEST,339,0.9941,0.9971,0.997,1.0,0.9882,0.9882
+BCDD corn rust/healthy TEST (other source),96,1.0,0.9271,0.9271,1.0,0.875,0.875
+corn other diseases (held out),400,0.03,,,0.63,,
+other crops' leaves (held out),400,0.0275,,,0.2025,,
+non-plant photos (held out),310,0.0258,,,0.1548,,
+synthetic graphics (held out),200,0.0,,,0.0,,

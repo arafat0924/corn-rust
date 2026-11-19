@@ -43,18 +43,18 @@ Wheat Healthy                                         48    360   72
 Wheat Loose Smut                                      48    354   70
 Wheat Yellow rust                                     48    360   72
 
-=== dhan_shomadhan: 1082 files, 0 unreadable, 2.18 GB
-  size (w x h): median 1952x4160, min 1952x1536, max 4160x4160; modes {'RGB': np.int64(1082)}
+=== dhan_shomadhan: 1106 files, 0 unreadable, 2.23 GB
+  size (w x h): median 1952x4160, min 1952x1536, max 4160x4160; modes {'RGB': np.int64(1106)}
 split             
 class             
-Brown Spot      85
-Browon Spot     44
-Leaf Scaled    213
-Rice Blast     270
-Rice Tungro    118
-Rice Turgro     72
-Shath Blight   218
-Sheath Blight   62
+Brown Spot      90
+Browon Spot     49
+Leaf Scaled    217
+Rice Blast     272
+Rice Tungro    119
+Rice Turgro     76
+Shath Blight   219
+Sheath Blight   64
 
 === riceleafbd: 1560 files, 0 unreadable, 0.51 GB
   size (w x h): median 1080x1552, min 167x245, max 2000x2048; modes {'RGB': np.int64(1560)}
@@ -65,17 +65,23 @@ Brown Spot             356
 Healthy Leaf           252
 Tungro Virus           530
 
-=== veg_leaf_bd: 5640 files, 0 unreadable, 0.47 GB
-  size (w x h): median 700x700, min 700x700, max 700x700; modes {'RGB': np.int64(5640)}
-split                            
-class                            
-Black Rot                     560
-Downy mildew                  392
-Eggplant Cercopora leaf spot  723
-Eggplant begomovirus          715
-Eggplant fresh leaf           771
-Eggplant verticillium wilt    724
-Tomato Bacterial spot         588
-Tomato Fresh leaf             371
-Tomato leaf curl virus        142
-Tomato spotted wilt           654
+=== veg_leaf_bd: 12786 files, 0 unreadable, 0.96 GB
+  size (w x h): median 700x700, min 700x700, max 700x700; modes {'RGB': np.int64(12786)}
+split                             
+class                             
+Anthracnose                    601
+Anthracnose lesions            535
+Black Rot                      560
+Downey mildew                 1254
+Downy mildew                  1076
+Eggplant Cercopora leaf spot   723
+Eggplant begomovirus           720
+Eggplant fresh leaf            771
+Eggplant verticillium wilt     730
+Fresh leaf                    2122
+Fusarium wilt                  502
+Mosaic virus                   600
+Tomato Bacterial spot          589
+Tomato Fresh leaf              594
+Tomato leaf curl virus         755
+Tomato spotted wilt            654

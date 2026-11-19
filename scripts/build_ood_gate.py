@@ -1,18 +1,22 @@
-r"""Build and evaluate the "is this a supported corn leaf?" gate, v2 (relative kNN over 4 banks).
+r"""Build and evaluate the "is this a supported corn leaf?" gate, v3 (relative kNN over 4 banks).
 
-Run: .\.venv\Scripts\python.exe scripts\build_ood_gate.py
+Run: $env:CORNRUST_RUN="results\run4"; .\.venv\Scripts\python.exe scripts\build_ood_gate.py
+     (without CORNRUST_RUN the gate is written to results/run3)
 
 v1 (absolute similarity threshold vs our training photos) rejected real corn leaves from other
 sources (BCDD corn accepted only 11-37%). v2 asks *which reference group is the image closest to*:
   corn        : corn rust + healthy (nafishamoin train split + BCDD train split)  -> accepted
-  corn_other  : corn gray leaf spot + northern leaf blight                       -> "unsupported corn disease"
+  corn_other  : corn gray leaf spot + northern leaf blight                       -> rejected
   other_crop  : leaves of rice, wheat, potato, tomato, eggplant, cauliflower     -> rejected
   not_leaf    : non-plant photos                                                 -> rejected
+v3 adds synthetic graphics (logos, gradients, abstract wallpapers, UI-like text) to not_leaf: v2's
+bank held only real photos, so smooth graphics such as a flat blue logo were accepted as corn.
 Group score = mean cosine similarity to its K nearest members (ImageNet EfficientNet-B0 features).
-Multi-view: the full image plus 5 zoomed crops (60%); an image is accepted if any view is "corn".
+Multi-view (full image + 5 zoomed crops) is evaluated too but stays off: it let junk through.
 Everything is evaluated on held-out images that are NOT in the banks.
-Outputs: results/run2/ood_bank.pt, results/run2/ood_gate.json, reports/ood/ood_eval.csv
+Outputs: <run>/ood_bank.pt, <run>/ood_gate.json, reports/ood/ood_eval.csv
 """
+import colorsys
 import importlib.util
 import json
 from pathlib import Path
@@ -22,17 +26,18 @@ import pandas as pd
 import timm
 import torch
 import torch.nn.functional as F
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFilter
 
 ROOT = Path(__file__).resolve().parent.parent
-RUN = ROOT / "results" / "run2"
 SPLIT = ROOT / "data" / "final" / "corn_rust"
 K, SEED, MAX_BANK = 5, 0, 1500
+N_SYNTH_BANK, N_SYNTH_EVAL = 400, 200
 GROUPS = ["corn", "corn_other", "other_crop", "not_leaf"]
 
 spec = importlib.util.spec_from_file_location("app_core", ROOT / "app" / "app.py")
 app = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(app)  # reuse leaf_crop, TF, views and the classifiers exactly as the app does
+RUN = app.RUN                 # results/run3, or the CORNRUST_RUN folder
 
 backbone = timm.create_model("efficientnet_b0", pretrained=True, num_classes=0).eval()
 
@@ -52,6 +57,67 @@ def embed_imgs(imgs):
 
 def group_scores(f, banks):
     return torch.stack([(f @ banks[g].T).topk(K, dim=1).values.mean(1) for g in GROUPS], 1)
+
+
+def synthetic_graphics(n, seed, size=256):
+    """Non-photographic images: flat logos, gradients, abstract 'wallpaper' curves and UI/text cards."""
+    rng = np.random.default_rng(seed)
+
+    def colour(sat=(0.25, 1.0), val=(0.25, 1.0)):
+        r, g, b = colorsys.hsv_to_rgb(rng.random(), rng.uniform(*sat), rng.uniform(*val))
+        return int(r * 255), int(g * 255), int(b * 255)
+
+    def gradient(a, b, radial=False):
+        yy, xx = np.mgrid[0:size, 0:size] / size
+        if radial:
+            cx, cy = rng.random(2)
+            t = np.clip(np.hypot(xx - cx, yy - cy) / rng.uniform(.5, 1.2), 0, 1)
+        else:
+            th = rng.uniform(0, 2 * np.pi)
+            t = (xx * np.cos(th) + yy * np.sin(th))
+            t = (t - t.min()) / (t.max() - t.min() + 1e-8)
+        arr = np.array(a, float) + (np.array(b, float) - np.array(a, float)) * t[..., None]
+        return Image.fromarray(arr.clip(0, 255).astype(np.uint8))
+
+    out = []
+    for i in range(n):
+        kind = i % 4
+        if kind == 0:                                   # logo: flat background + flat shapes
+            im = Image.new("RGB", (size, size), colour())
+            d = ImageDraw.Draw(im)
+            for _ in range(int(rng.integers(1, 5))):
+                s = int(rng.integers(40, 180))
+                x0, y0 = (int(v) for v in rng.integers(0, size - s // 2, 2))
+                box, fill = [x0, y0, x0 + s, y0 + s], colour()
+                shape = int(rng.integers(4))
+                if shape == 0:
+                    d.ellipse(box, fill=fill)
+                elif shape == 1:
+                    d.rectangle(box, fill=fill)
+                elif shape == 2:
+                    d.polygon([(x0, y0 + s), (x0 + s // 2, y0), (x0 + s, y0 + s)], fill=fill)
+                else:
+                    d.rounded_rectangle(box, radius=s // 4, outline=fill, width=int(rng.integers(6, 20)))
+        elif kind == 1:                                 # plain linear / radial gradient
+            im = gradient(colour(), colour(), radial=bool(rng.integers(2)))
+        elif kind == 2:                                 # abstract wallpaper: soft overlapping bands
+            im = gradient(colour(val=(.2, .9)), colour(val=(.2, .9)))
+            d = ImageDraw.Draw(im)
+            for _ in range(int(rng.integers(3, 8))):
+                pts = [(float(x), float(y)) for x, y in rng.uniform(-60, size + 60, (4, 2))]
+                d.line(pts, fill=colour(), width=int(rng.integers(15, 70)), joint="curve")
+            im = im.filter(ImageFilter.GaussianBlur(float(rng.uniform(3, 12))))
+        else:                                           # UI card / document: text-like bars on a flat page
+            im = Image.new("RGB", (size, size), colour(sat=(0, .3), val=(.85, 1)))
+            d = ImageDraw.Draw(im)
+            y, ink = int(rng.integers(10, 40)), colour(val=(0, .5))
+            while y < size - 20:
+                h = int(rng.integers(6, 22))
+                d.rectangle([16, y, 16 + int(rng.integers(60, size - 32)), y + h], fill=ink)
+                d.text((20, y + h + 2), "Lorem ipsum 123", fill=ink)
+                y += h + int(rng.integers(14, 36))
+        out.append(im.convert("RGB"))
+    return out
 
 
 def main():
@@ -85,28 +151,37 @@ def main():
         paths = bank_paths[g]
         if len(paths) > MAX_BANK:
             paths = list(rng.choice(paths, MAX_BANK, replace=False))
-        print(f"bank {g}: {len(paths)} images")
-        banks[g] = embed_imgs(load(paths))
+        imgs = load(paths)
+        if g == "not_leaf":
+            imgs += [app.leaf_crop(im) for im in synthetic_graphics(N_SYNTH_BANK, seed=1)]
+        print(f"bank {g}: {len(imgs)} images", flush=True)
+        banks[g] = embed_imgs(imgs)
 
-    # held-out evaluation sets: (name, paths, expected group, true corn class or None)
+    # held-out evaluation sets: (name, images, expected group, true corn class or None)
     def ev(df, n=400):
         return df.sample(min(n, len(df)), random_state=SEED)
 
     test = split[split.split == "test"]
     bcdd_test = bcdd_corn[bcdd_corn.split == "test"]
     eval_sets = [
-        ("our corn rust/healthy TEST", [str(SPLIT / "test" / r.cls / Path(r.proc_path).name) for r in test.itertuples()],
+        ("our corn rust/healthy TEST",
+         lambda: load([str(SPLIT / "test" / r.cls / Path(r.proc_path).name) for r in test.itertuples()]),
          "corn", list(test.cls)),
-        ("BCDD corn rust/healthy TEST (other source)", [str(ROOT / p) for p in bcdd_test.proc_path], "corn",
-         [l.split("___")[1].replace("Common_rust", "Common_rust") for l in bcdd_test.label]),
-        ("corn other diseases (held out)", [str(ROOT / p) for p in ev(co_eval).proc_path], "corn_other", None),
-        ("other crops' leaves (held out)", [str(ROOT / p) for p in ev(oc_eval).proc_path], "other_crop", None),
-        ("non-plant photos (held out)", [str(ROOT / p) for p in ev(nl_eval).proc_path], "not_leaf", None),
+        ("BCDD corn rust/healthy TEST (other source)", lambda: load([str(ROOT / p) for p in bcdd_test.proc_path]),
+         "corn", [lbl.split("___")[1] for lbl in bcdd_test.label]),
+        ("corn other diseases (held out)", lambda: load([str(ROOT / p) for p in ev(co_eval).proc_path]),
+         "corn_other", None),
+        ("other crops' leaves (held out)", lambda: load([str(ROOT / p) for p in ev(oc_eval).proc_path]),
+         "other_crop", None),
+        ("non-plant photos (held out)", lambda: load([str(ROOT / p) for p in ev(nl_eval).proc_path]),
+         "not_leaf", None),
+        ("synthetic graphics (held out)",
+         lambda: [app.leaf_crop(im) for im in synthetic_graphics(N_SYNTH_EVAL, seed=2)], "not_leaf", None),
     ]
-    cnn = app.MODELS[next(iter(app.MODELS))][0]
+    cnn = app.MODELS[next(k for k in app.MODELS if k.startswith("SmallCNN"))][0][0]
     rows = []
-    for name, paths, expect, truth in eval_sets:
-        imgs = load(paths)
+    for name, get_imgs, expect, truth in eval_sets:
+        imgs = get_imgs()
         r = {"set": name, "n": len(imgs)}
         for mode in ("single", "multi"):
             views = [app.views(im) if mode == "multi" else [im] for im in imgs]
@@ -129,19 +204,21 @@ def main():
                 r[f"cnn_acc_{mode}"] = float(ok.mean())
                 r[f"cnn_acc_on_accepted_{mode}"] = float(ok[acc_mask].mean()) if acc_mask.any() else np.nan
         rows.append(r)
-        print(f"  {name}: done")
+        print(f"  {name}: accepted {r['accepted_single']:.1%} (single view)", flush=True)
 
     out = ROOT / "reports" / "ood"
     out.mkdir(parents=True, exist_ok=True)
     res = pd.DataFrame(rows)
     res.round(4).to_csv(out / "ood_eval.csv", index=False)
+    RUN.mkdir(parents=True, exist_ok=True)
     torch.save({g: banks[g].half() for g in GROUPS}, RUN / "ood_bank.pt")
     (RUN / "ood_gate.json").write_text(json.dumps(
-        {"version": 2, "backbone": "efficientnet_b0 (ImageNet, timm)", "k": K, "groups": GROUPS,
-         "accept_group": "corn", "multiview": False, "bank_sizes": {g: len(banks[g]) for g in GROUPS}},
-        indent=1))
+        {"version": 2, "gate_build": 3, "backbone": "efficientnet_b0 (ImageNet, timm)", "k": K, "groups": GROUPS,
+         "accept_group": "corn", "multiview": False, "synthetic_not_leaf": N_SYNTH_BANK,
+         "bank_sizes": {g: len(banks[g]) for g in GROUPS}}, indent=1))
     pd.set_option("display.width", 200)
     print(res.round(3).to_string(index=False))
+    print(f"gate written to {RUN}")
 
 
 if __name__ == "__main__":

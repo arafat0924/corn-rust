@@ -1,9 +1,9 @@
-set,model,n,rejected_by_gate,acc_end_to_end,acc_on_accepted
-test (main source),Ensemble: SmallCNN + MobileNetV3,339,0.0147,0.9853,1.0
-test (main source),MobileNetV3-Small,339,0.0147,0.9735,0.988
-test (main source),SmallCNN,339,0.0147,0.9823,0.997
-test (main source),EfficientNet-B0,339,0.0147,0.9705,0.985
-test_other (BCDD source),Ensemble: SmallCNN + MobileNetV3,96,0.0104,0.9688,0.9789
-test_other (BCDD source),MobileNetV3-Small,96,0.0104,0.9792,0.9895
-test_other (BCDD source),SmallCNN,96,0.0104,0.9271,0.9368
-test_other (BCDD source),EfficientNet-B0,96,0.0104,0.9062,0.9158
+run,set,model,n,rejected_by_gate,acc_end_to_end,acc_on_accepted
+live,test (main source),Ensemble: SmallCNN + MobileNetV3,339,0.0059,0.9941,1.0
+live,test (main source),MobileNetV3-Small,339,0.0059,0.9823,0.9881
+live,test (main source),SmallCNN,339,0.0059,0.9912,0.997
+live,test (main source),EfficientNet-B0,339,0.0059,0.9764,0.9822
+live,test_other (BCDD source),Ensemble: SmallCNN + MobileNetV3,96,0.0,0.9792,0.9792
+live,test_other (BCDD source),MobileNetV3-Small,96,0.0,0.9896,0.9896
+live,test_other (BCDD source),SmallCNN,96,0.0,0.9375,0.9375
+live,test_other (BCDD source),EfficientNet-B0,96,0.0,0.9792,0.9792

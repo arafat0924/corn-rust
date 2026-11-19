@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/static/style.css?v=7">
+<link rel="stylesheet" href="/static/style.css?v=9">
 </head>
 <body>
 
@@ -82,13 +82,14 @@
   <p><b>Leaf-only crop.</b> Each photo is cropped to the largest square that contains only leaf, so the
      background can't decide the answer. Our first models learned exactly that shortcut.</p>
   <p><b>Input check.</b> A pretrained EfficientNet-B0 compares the photo with four reference groups: corn
-     rust or healthy, other corn diseases, other crops, and non-plant photos. Only photos closest to the
-     first group go on to the classifier.</p>
+     rust or healthy, other corn diseases, other crops, and non-plant photos and graphics. Only photos
+     closest to the first group go on to the classifier.</p>
   <p><b>Classifiers.</b> SmallCNN (0.39M parameters, trained from scratch), MobileNetV3-Small and
      EfficientNet-B0 (ImageNet, fine-tuned), trained on two corn photo sources. The ensemble averages
-     SmallCNN and MobileNetV3. Held-out test accuracy: SmallCNN 99.7%, MobileNetV3 99.4%, EfficientNet-B0 98.5%.</p>
+     SmallCNN and MobileNetV3. Held-out test accuracy: SmallCNN 99.7%, MobileNetV3 99.4%, EfficientNet-B0 99.4%.
+     Through the whole app, the ensemble got 99.4% of the main test set and 97.9% of a second photo source right.</p>
   <p><b>Heatmap.</b> Grad-CAM marks the regions that pushed the prediction.</p>
-  <p>Photos are analyzed in memory and never stored.</p>
+  <p>Photos are analyzed in memory on a cloud server and never stored.</p>
 </dialog>
 
 <dialog id="limits" class="pop" aria-labelledby="limitsTitle">
@@ -104,6 +105,6 @@
   </ul>
 </dialog>
 
-<script src="/static/app.js?v=7"></script>
+<script src="/static/app.js?v=9"></script>
 </body>
 </html>

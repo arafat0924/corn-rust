@@ -1,9 +1,11 @@
 r"""Evaluate the full app pipeline (gate -> leaf crop -> model) on the held-out test sets.
 
-Run: .\.venv\Scripts\python.exe scripts\eval_app.py
-Output: reports/app_eval.csv. "rejected" = the gate refused the image (counted as not correct).
+Run: .\.venv\Scripts\python.exe scripts\eval_app.py [output.csv]
+Models and gate come from results/run3, or from the CORNRUST_RUN folder.
+Output: reports/app_eval.csv (or the given path). "rejected" = the gate refused the image (counted as not correct).
 """
 import importlib.util
+import sys
 from pathlib import Path
 
 import pandas as pd
@@ -36,12 +38,12 @@ for set_name, folder in SETS.items():
             probs, _ = app.classify(view, model_name)
             correct += app.CLASSES[int(probs.argmax())] == truth
         n = len(gated)
-        rows.append(dict(set=set_name, model=model_name.split(" (")[0], n=n,
+        rows.append(dict(run=app.RUN.name, set=set_name, model=model_name.split(" (")[0], n=n,
                          rejected_by_gate=rejected / n, acc_end_to_end=correct / n,
                          acc_on_accepted=correct / max(1, n - rejected)))
         print(rows[-1])
 
-out = ROOT / "reports" / "app_eval.csv"
+out = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT / "reports" / "app_eval.csv"
 pd.DataFrame(rows).round(4).to_csv(out, index=False)
 pd.set_option("display.width", 200)
 print(pd.DataFrame(rows).round(3).to_string(index=False))

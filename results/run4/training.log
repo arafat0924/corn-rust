@@ -1,0 +1,113 @@
+device: cuda | torch 2.15.0+cu132 | timm 1.0.31 | smoke: False
+raw data: /root/proj/data/final/corn_rust_v3 | outputs: /tmp/out
+             images  kept  with_black_before  with_black_after  mean_crop_frac
+cls                                                                           
+Common_rust    1624  1569              0.998               0.0           0.539
+Healthy        1590  1590              0.076               0.0           0.593
+cls         Common_rust  Healthy
+split                           
+test                171      167
+test_other           45       48
+train              1118     1137
+val                 235      238
+classes: ['Common_rust', 'Healthy']
+{'train': 2255, 'val': 473, 'test': 338, 'test_other': 93}
+SmallCNN params: 0.39M
+small_cnn ep01  train loss 0.3801 acc 0.8541 | val loss 0.2165 acc 0.9154 | 6s
+small_cnn ep02  train loss 0.3412 acc 0.8834 | val loss 0.2142 acc 0.9197 | 4s
+small_cnn ep03  train loss 0.3587 acc 0.8723 | val loss 0.1942 acc 0.9302 | 4s
+small_cnn ep04  train loss 0.3430 acc 0.8807 | val loss 0.2110 acc 0.9366 | 4s
+small_cnn ep05  train loss 0.3214 acc 0.8927 | val loss 0.1931 acc 0.9154 | 4s
+small_cnn ep06  train loss 0.3060 acc 0.8967 | val loss 0.1599 acc 0.9323 | 4s
+small_cnn ep07  train loss 0.2933 acc 0.9038 | val loss 0.1450 acc 0.9450 | 4s
+small_cnn ep08  train loss 0.2904 acc 0.9109 | val loss 0.1440 acc 0.9493 | 4s
+small_cnn ep09  train loss 0.2825 acc 0.9180 | val loss 0.1380 acc 0.9408 | 4s
+small_cnn ep10  train loss 0.2807 acc 0.9140 | val loss 0.2070 acc 0.9197 | 4s
+small_cnn ep11  train loss 0.2617 acc 0.9224 | val loss 0.1069 acc 0.9683 | 4s
+small_cnn ep12  train loss 0.2585 acc 0.9264 | val loss 0.1195 acc 0.9598 | 4s
+small_cnn ep13  train loss 0.2543 acc 0.9330 | val loss 0.1318 acc 0.9514 | 4s
+small_cnn ep14  train loss 0.2515 acc 0.9384 | val loss 0.0991 acc 0.9683 | 4s
+small_cnn ep15  train loss 0.2392 acc 0.9450 | val loss 0.1148 acc 0.9556 | 4s
+small_cnn ep16  train loss 0.2473 acc 0.9361 | val loss 0.1188 acc 0.9577 | 4s
+small_cnn ep17  train loss 0.2304 acc 0.9525 | val loss 0.0800 acc 0.9725 | 5s
+small_cnn ep18  train loss 0.2255 acc 0.9481 | val loss 0.1099 acc 0.9598 | 4s
+small_cnn ep19  train loss 0.2129 acc 0.9561 | val loss 0.0888 acc 0.9641 | 4s
+small_cnn ep20  train loss 0.2227 acc 0.9503 | val loss 0.0953 acc 0.9641 | 4s
+small_cnn ep21  train loss 0.2230 acc 0.9490 | val loss 0.0868 acc 0.9641 | 4s
+small_cnn ep22  train loss 0.2091 acc 0.9570 | val loss 0.0725 acc 0.9725 | 5s
+small_cnn ep23  train loss 0.2237 acc 0.9517 | val loss 0.0749 acc 0.9767 | 5s
+small_cnn ep24  train loss 0.2143 acc 0.9552 | val loss 0.0706 acc 0.9746 | 4s
+small_cnn ep25  train loss 0.2153 acc 0.9579 | val loss 0.0834 acc 0.9725 | 4s
+small_cnn ep26  train loss 0.2145 acc 0.9570 | val loss 0.0698 acc 0.9767 | 5s
+small_cnn ep27  train loss 0.2020 acc 0.9627 | val loss 0.0665 acc 0.9767 | 4s
+small_cnn ep28  train loss 0.2036 acc 0.9641 | val loss 0.0684 acc 0.9831 | 4s
+small_cnn ep29  train loss 0.2028 acc 0.9654 | val loss 0.0667 acc 0.9789 | 4s
+small_cnn ep30  train loss 0.1983 acc 0.9681 | val loss 0.0701 acc 0.9746 | 4s
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+efficientnet_b0 params: 4.01M
+efficientnet_b0 ep01  train loss 1.6168 acc 0.6373 | val loss 1.1995 acc 0.7209 | 8s
+efficientnet_b0 ep02  train loss 0.8887 acc 0.8142 | val loss 0.9265 acc 0.7653 | 5s
+efficientnet_b0 ep03  train loss 0.7475 acc 0.8466 | val loss 0.7985 acc 0.7822 | 5s
+efficientnet_b0 ep04  train loss 0.5233 acc 0.9295 | val loss 0.2569 acc 0.9175 | 14s
+efficientnet_b0 ep05  train loss 0.4342 acc 0.9424 | val loss 0.1343 acc 0.9683 | 7s
+efficientnet_b0 ep06  train loss 0.3550 acc 0.9579 | val loss 0.1806 acc 0.9535 | 7s
+efficientnet_b0 ep07  train loss 0.3178 acc 0.9636 | val loss 0.1752 acc 0.9387 | 7s
+efficientnet_b0 ep08  train loss 0.3091 acc 0.9659 | val loss 0.1166 acc 0.9577 | 7s
+efficientnet_b0 ep09  train loss 0.2743 acc 0.9690 | val loss 0.1456 acc 0.9535 | 7s
+efficientnet_b0 ep10  train loss 0.2657 acc 0.9681 | val loss 0.2148 acc 0.9366 | 7s
+efficientnet_b0 ep11  train loss 0.2513 acc 0.9698 | val loss 0.1146 acc 0.9471 | 7s
+efficientnet_b0 ep12  train loss 0.2329 acc 0.9769 | val loss 0.1129 acc 0.9471 | 7s
+efficientnet_b0 ep13  train loss 0.2411 acc 0.9712 | val loss 0.1049 acc 0.9577 | 7s
+efficientnet_b0 ep14  train loss 0.2327 acc 0.9761 | val loss 0.0863 acc 0.9641 | 7s
+efficientnet_b0 ep15  train loss 0.2305 acc 0.9769 | val loss 0.1036 acc 0.9577 | 7s
+mobilenetv3_small params: 1.52M
+mobilenetv3_small ep01  train loss 2.3207 acc 0.6071 | val loss 1.8363 acc 0.7019 | 5s
+mobilenetv3_small ep02  train loss 0.9629 acc 0.8160 | val loss 1.3445 acc 0.7674 | 4s
+mobilenetv3_small ep03  train loss 0.8387 acc 0.8461 | val loss 1.0782 acc 0.7949 | 4s
+mobilenetv3_small ep04  train loss 0.6545 acc 0.9166 | val loss 0.2188 acc 0.9366 | 6s
+mobilenetv3_small ep05  train loss 0.3153 acc 0.9561 | val loss 0.1170 acc 0.9662 | 4s
+mobilenetv3_small ep06  train loss 0.2535 acc 0.9672 | val loss 0.1306 acc 0.9514 | 5s
+mobilenetv3_small ep07  train loss 0.2102 acc 0.9783 | val loss 0.0682 acc 0.9725 | 5s
+mobilenetv3_small ep08  train loss 0.1861 acc 0.9787 | val loss 0.0623 acc 0.9831 | 5s
+mobilenetv3_small ep09  train loss 0.1690 acc 0.9885 | val loss 0.0721 acc 0.9767 | 5s
+mobilenetv3_small ep10  train loss 0.1680 acc 0.9845 | val loss 0.0848 acc 0.9746 | 5s
+mobilenetv3_small ep11  train loss 0.1561 acc 0.9960 | val loss 0.0518 acc 0.9873 | 4s
+mobilenetv3_small ep12  train loss 0.1538 acc 0.9894 | val loss 0.0591 acc 0.9831 | 5s
+mobilenetv3_small ep13  train loss 0.1528 acc 0.9911 | val loss 0.0570 acc 0.9894 | 5s
+mobilenetv3_small ep14  train loss 0.1459 acc 0.9942 | val loss 0.0515 acc 0.9894 | 5s
+mobilenetv3_small ep15  train loss 0.1498 acc 0.9925 | val loss 0.0520 acc 0.9894 | 4s
+
+=== small_cnn ===
+              precision    recall  f1-score   support
+
+ Common_rust     1.0000    1.0000    1.0000       171
+     Healthy     1.0000    1.0000    1.0000       167
+
+    accuracy                         1.0000       338
+   macro avg     1.0000    1.0000    1.0000       338
+weighted avg     1.0000    1.0000    1.0000       338
+
+
+=== efficientnet_b0 ===
+              precision    recall  f1-score   support
+
+ Common_rust     1.0000    0.9883    0.9941       171
+     Healthy     0.9882    1.0000    0.9940       167
+
+    accuracy                         0.9941       338
+   macro avg     0.9941    0.9942    0.9941       338
+weighted avg     0.9942    0.9941    0.9941       338
+
+
+=== mobilenetv3_small ===
+              precision    recall  f1-score   support
+
+ Common_rust     0.9884    1.0000    0.9942       171
+     Healthy     1.0000    0.9880    0.9940       167
+
+    accuracy                         0.9941       338
+   macro avg     0.9942    0.9940    0.9941       338
+weighted avg     0.9942    0.9941    0.9941       338
+
+outputs/cropped/test/Common_rust/01ba8f83712eb410.jpg -> {'Common_rust': 1.0, 'Healthy': 0.0}
+saved outputs: ['confusion_matrices.png', 'crop_stats.csv', 'efficientnet_b0_best.pth', 'gradcam_efficientnet_b0.png', 'gradcam_mobilenetv3_small.png', 'gradcam_small_cnn.png', 'histories.json', 'learning_curves.png', 'mobilenetv3_small_best.pth', 'model_info.json', 'results.csv', 'samples.png', 'small_cnn_best.pth']

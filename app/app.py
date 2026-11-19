@@ -2,13 +2,15 @@ r"""Corn common rust detector: web demo.
 
 Run:  .\.venv\Scripts\python.exe app\app.py      then open http://127.0.0.1:7860
 Serves a one-page frontend (app/static/) and a small JSON API (/api/models, /api/analyze).
-Uses the run-3 weights in results/run3/.
+Uses the models in results/live/ (see results/live/SOURCES.json), or the folder named by the
+CORNRUST_RUN environment variable. Get the weights with scripts/download_models.py.
 The model functions below are also imported by scripts/eval_app.py, eval_published.py and
-build_ood_gate.py, so keep their names and behaviour.
+build_ood_gate.py, and by deploy/modal_api.py, so keep their names and behaviour.
 """
 import base64
 import io
 import json
+import os
 import threading
 from pathlib import Path
 
@@ -23,7 +25,8 @@ from scipy.ndimage import distance_transform_cdt
 from torchvision import transforms
 
 ROOT = Path(__file__).resolve().parent.parent
-RUN = ROOT / "results" / "run3"   # run 3 = trained on two corn sources (nafishamoin + BCDD)
+# model folder: weights, model_info.json, results.csv and the gate files (ood_gate.json, ood_bank.pt)
+RUN = Path(os.environ.get("CORNRUST_RUN", ROOT / "results" / "live")).resolve()
 INFO = json.loads((RUN / "model_info.json").read_text())
 CLASSES = INFO["classes"]
 IMG = INFO["img_size"]
@@ -273,8 +276,9 @@ def model_catalog():
     return items
 
 
-def serve(host="127.0.0.1", port=7860):
-    import uvicorn
+def create_api(with_page=True):
+    """The FastAPI app: /api/models and /api/analyze, plus the page itself when with_page is True
+    (the Modal deployment serves only the API; nginx serves the page)."""
     from fastapi import FastAPI, File, Form, UploadFile
     from fastapi.responses import FileResponse, JSONResponse
     from fastapi.staticfiles import StaticFiles
@@ -301,14 +305,22 @@ def serve(host="127.0.0.1", port=7860):
         with lock:
             return analyze(img, model if model in MODELS else next(iter(MODELS)))
 
-    api.mount("/static", StaticFiles(directory=here / "static"), name="static")
-    api.mount("/assets", StaticFiles(directory=here / "assets"), name="assets")
+    if with_page:
+        api.mount("/static", StaticFiles(directory=here / "static"), name="static")
+        api.mount("/assets", StaticFiles(directory=here / "assets"), name="assets")
 
-    @api.get("/")
-    def index():
-        return FileResponse(here / "static" / "index.html")
+        @api.get("/")
+        def index():
+            return FileResponse(here / "static" / "index.html")
 
-    print(f"Corn rust detector running at http://{host}:{port}", flush=True)
+    return api
+
+
+def serve(host="127.0.0.1", port=7860):
+    import uvicorn
+
+    api = create_api()
+    print(f"Corn rust detector running at http://{host}:{port} (models: {RUN})", flush=True)
     uvicorn.run(api, host=host, port=port, log_level="warning")
 
 

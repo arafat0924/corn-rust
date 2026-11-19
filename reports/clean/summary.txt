@@ -1,35 +1,35 @@
 threshold=4 conflict=2
-kept 22491 / 48327
+kept 23629 / 49883
 
                                  before  after  duplicate  label_conflict  redundant_source  too_small
 label                                                                                                 
 Cauliflower___Black_rot             560    516       44.0             0.0               0.0        0.0
-Cauliflower___Downy_mildew          392    318       74.0             0.0               0.0        0.0
+Cauliflower___Downy_mildew         1076    886      190.0             0.0               0.0        0.0
 Corn___Common_rust                 4294   1144     2670.0             0.0             480.0        0.0
 Corn___Gray_leaf_spot              3764    943     2341.0             0.0             480.0        0.0
 Corn___Healthy                     4198   1110     2608.0             0.0             480.0        0.0
 Corn___Northern_leaf_blight        4296    915     2901.0             0.0             480.0        0.0
-Eggplant___Begomovirus              715    513      202.0             0.0               0.0        0.0
+Eggplant___Begomovirus              720    516      204.0             0.0               0.0        0.0
 Eggplant___Cercospora_leaf_spot     723    536      187.0             0.0               0.0        0.0
 Eggplant___Healthy                  771    619      152.0             0.0               0.0        0.0
-Eggplant___Verticillium_wilt        724    649       75.0             0.0               0.0        0.0
+Eggplant___Verticillium_wilt        730    655       75.0             0.0               0.0        0.0
 Not_a_leaf                         1563   1550       10.0             0.0               0.0        3.0
 Potato___Early_blight              3629    997     2152.0             0.0             480.0        0.0
 Potato___Healthy                   2486    540     1466.0             0.0             480.0        0.0
 Potato___Late_blight               3611    993     2138.0             0.0             480.0        0.0
 Rice___Bacterial_leaf_blight        902    513      367.0            22.0               0.0        0.0
-Rice___Brown_spot                  1488    976       20.0            52.0             440.0        0.0
+Rice___Brown_spot                  1498    986       20.0            52.0             440.0        0.0
 Rice___Healthy                     1215    673       27.0            75.0             440.0        0.0
 Rice___Hispa                        523    419       20.0            84.0               0.0        0.0
-Rice___Leaf_blast                  1892   1185      203.0            64.0             440.0        0.0
-Rice___Leaf_scald                   213    212        0.0             1.0               0.0        0.0
-Rice___Sheath_blight                280    280        0.0             0.0               0.0        0.0
-Rice___Tungro                       720    682       18.0            20.0               0.0        0.0
-Tomato___Bacterial_spot            1068    764      298.0             6.0               0.0        0.0
+Rice___Leaf_blast                  1894   1187      203.0            64.0             440.0        0.0
+Rice___Leaf_scald                   217    216        0.0             1.0               0.0        0.0
+Rice___Sheath_blight                283    283        0.0             0.0               0.0        0.0
+Rice___Tungro                       725    687       18.0            20.0               0.0        0.0
+Tomato___Bacterial_spot            1069    761      298.0            10.0               0.0        0.0
 Tomato___Early_blight               480    238      241.0             1.0               0.0        0.0
-Tomato___Healthy                    851    571      279.0             1.0               0.0        0.0
+Tomato___Healthy                   1074    779      294.0             1.0               0.0        0.0
 Tomato___Late_blight                480    234      246.0             0.0               0.0        0.0
-Tomato___Leaf_curl_virus            142    131        9.0             2.0               0.0        0.0
+Tomato___Leaf_curl_virus            755    463      286.0             6.0               0.0        0.0
 Tomato___Spotted_wilt               654    599       53.0             2.0               0.0        0.0
 Wheat___Brown_rust                 1608    933        0.0             0.0             480.0      195.0
 Wheat___Healthy                    1977   1495        2.0             0.0             480.0        0.0
@@ -41,6 +41,6 @@ drop_reason             duplicate  label_conflict  redundant_source  too_small
 dataset                                                                       
 bcd_nafishamoin  13915      16549             271                 0        318
 bcdd              1320       1548               4              6120          0
-dhan_shomadhan    1077          4               1                 0          0
+dhan_shomadhan    1101          4               1                 0          0
 riceleafbd        1413        101              46                 0          0
-veg_leaf_bd       4766        866               8                 0          0
+veg_leaf_bd       5880       1276              16                 0          0

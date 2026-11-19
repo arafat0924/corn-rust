@@ -7,9 +7,8 @@ const el = {
   barWrap: $("#barWrap"), bar: $("#bar"), detail: $("#verdictDetail"), scores: $("#scores"),
   hint: $("#heatHint"), again: $("#again"),
 };
-// Uploads are switched off while the project is still in development (tested locally only).
-// Set to true to let visitors upload their own photos again.
-const UPLOAD_ENABLED = false;
+// Set to false to switch visitor uploads off (the button then shows a "Coming soon" note).
+const UPLOAD_ENABLED = true;
 const TOUCH = window.matchMedia("(hover: none) and (pointer: coarse)").matches;
 const IDLE = !UPLOAD_ENABLED ? ""
   : TOUCH ? "Tap to choose or take a photo"
@@ -17,8 +16,9 @@ const IDLE = !UPLOAD_ENABLED ? ""
 const BTN = "Upload a leaf";
 const MAX = 15 * 1024 * 1024;
 let catalog = [], current = null, lastFile = null, lastSample = null, busy = false, localUrl = null;
-// Demo mode: no Python server behind the page (static hosting). The model list and the sample
-// results come from pre-computed files in /demo/, built by scripts/build_static_site.py.
+// Demo files (static hosting): the model list and the two sample results are pre-computed in /demo/
+// (scripts/build_static_site.py), so the page and the samples never wait for the model server.
+// Uploads always go to /api/analyze (on the hosted site nginx forwards it to the model server).
 let demo = false;
 
 function setStatus(text, err = false) {
@@ -36,11 +36,11 @@ async function getJSON(url) {
 async function loadModels() {
   let d;
   try {
-    d = await getJSON("/api/models");
+    d = await getJSON("/demo/models.json");
+    demo = true;
   } catch {
     try {
-      d = await getJSON("/demo/models.json");
-      demo = true;
+      d = await getJSON("/api/models");   // local server (python app/app.py): no demo files
     } catch {
       setStatus("Couldn't reach the detector. Please try again later.", true);
       return;
@@ -95,29 +95,48 @@ function setBusy(on) {
   el.models.querySelectorAll("button").forEach((b) => { b.disabled = on; });
 }
 
+const OFFLINE = "The detector is offline right now. Please try again later, or try a sample leaf.";
+
 async function analyze(file, sample = null) {
   if (busy || !file) return;
-  if (demo) return fail("Uploads aren't available on this page yet.");
   if (file.type && !file.type.startsWith("image/")) return fail("That file isn't an image. Try a JPG, PNG or WebP.");
   if (file.size > MAX) return fail("That file is over 15 MB. Try a smaller photo.");
   lastFile = file;
   lastSample = sample;
   setBusy(true);
   if (el.result.hidden) setStatus("Checking the leaf…");
+  // the model server sleeps when nobody uses it; the first check after a pause takes longer
+  const slow = setTimeout(() => {
+    if (el.result.hidden) setStatus("Waking up the model. The first check after a quiet spell takes about 20 seconds.");
+  }, 4000);
   const body = new FormData();
   body.append("image", file);
   body.append("model", current || "");
   try {
     const r = await fetch("/api/analyze", { method: "POST", body });
+    if ([404, 502, 503, 504].includes(r.status)) throw new Error(OFFLINE);
+    if (r.status === 429) throw new Error("Too many checks in a short time. Please wait a minute and try again.");
+    if (r.status === 413) throw new Error("That file is over 15 MB. Try a smaller photo.");
     const d = await r.json().catch(() => ({ status: "error", detail: "The detector sent an unexpected reply." }));
     if (!r.ok || d.status === "error") throw new Error(d.detail || "Something went wrong. Please try again.");
     show(d, file);
   } catch (e) {
-    fail(e.message && e.message !== "Failed to fetch" ? e.message : "Couldn't reach the detector. Please try again.");
+    fail(e.message && e.message !== "Failed to fetch" ? e.message : OFFLINE);
   } finally {
+    clearTimeout(slow);
     setBusy(false);
   }
 }
+
+// Start waking the model server as soon as someone heads for the upload button.
+let warmed = false;
+function warmUp() {
+  if (warmed || !UPLOAD_ENABLED) return;
+  warmed = true;
+  fetch("/api/models", { cache: "no-store" }).catch(() => {});
+}
+["pointerenter", "focus", "touchstart", "dragenter"].forEach((t) => el.drop.addEventListener(t, warmUp, { passive: true }));
+document.addEventListener("dragenter", warmUp, { passive: true });
 
 function fail(message) {
   el.result.hidden = true;
